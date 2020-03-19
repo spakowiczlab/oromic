@@ -1,0 +1,89 @@
+---
+title: "mic_power-calc"
+author: "Daniel Spakowicz"
+date: "3/18/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(FDRsampsize)
+library(ggplot2)
+library(magrittr)
+library(tidyr)
+library(dplyr)
+library(pwr)
+```
+
+```{r sample size}
+# Sample size
+n.total <- 60
+
+# Number of non-responders estimated at 25% of the total
+est.response.rate <- 0.75
+
+# Define the number in the smaller of the two arms
+n.nr <- n.total * (1 - est.response.rate)
+
+# Compliance rate
+compliance <- 0.8
+```
+
+Correct for false positives using the Bonferroni method: 
+
+> Bland JM, Altman DG. Multiple significance tests: the Bonferroni method. BMJ. 1995 Jan 21;310(6973):170. PMID: 7833759
+
+
+```{r false positive rate}
+# Define the false positive rate
+sig.level <- 0.05
+num.tests <- 100
+typeIerror <- sig.level / num.tests
+```
+
+Define a range of fold changes and coefficients of variation consistent with other microbiome studies. 
+
+```{r define range}
+# Define ranges of fold changes and coefficients of variation 
+# to calculate the power
+fold.change <- c(2.1, 3, 4.2)
+coef.variation <- c(0.4, 0.6, 0.8)
+```
+
+Calculate power using the method of Hart: 
+
+> Hart SN, Therneau TM, Zhang Y, Poland GA, Kocher J-P. Calculating sample size estimates for RNA sequencing data. J Comput Biol. 2013 Dec;20(12):970–978. PMCID: PMC3842884
+
+
+```{r calculate power}
+power.l <- list()
+for (c in 1:length(coef.variation)) {
+  power.l[[as.character(coef.variation[c])]] <- 
+    power.hart(n = n.nr * compliance, 
+               alpha = typeIerror, 
+               log.fc = log(fold.change),
+               mu = rep(100, length(fold.change)), 
+               sig = rep(coef.variation[c], length(fold.change)))
+}
+
+# Reformat the list for plotting
+power.df <- bind_rows(power.l)
+power.df$fold.change <- fold.change
+```
+
+Plot as a heatmap.
+
+```{r plot}
+# Plot as heatmap
+power.df %>%
+  gather(CV, Power, -fold.change) %>%
+  ggplot(aes(x = factor(fold.change), y = CV)) +
+  geom_tile(aes(fill = Power)) +
+  scale_fill_gradient(low = "white", high = "blue") +
+  geom_label(aes(factor(fold.change), CV, label = round(Power, 2))) +
+  labs(x = "Fold Change",
+       y = "Coefficient of Variation") +
+  ggsave("figures/mic-power_cv-fc.png", height = 4, width = 4)
+```
+
