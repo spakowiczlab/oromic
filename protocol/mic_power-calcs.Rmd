@@ -13,7 +13,6 @@ library(ggplot2)
 library(magrittr)
 library(tidyr)
 library(dplyr)
-library(pwr)
 ```
 
 ```{r sample size}
