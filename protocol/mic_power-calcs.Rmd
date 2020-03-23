@@ -86,3 +86,6 @@ power.df %>%
   ggsave("figures/mic-power_cv-fc.png", height = 4, width = 4)
 ```
 
+Text added to the protocol.
+
+> Assuming 80% compliance rate for stool sample collection with 75% treatment response rate, to correct 100 tests, n=60 patients achieves 2.1 to 4.2-fold change (FC) between responders and nonresponders with coefficient of variation (CV) as 0.4 to 0.8 (Figure 1) by negative binomial Wald test \cite{https://pubmed.ncbi.nlm.nih.gov/23961961/}. This CV and FC range is consistent with the inter-individual variability observed in cross-sectional data in other microbiome studies \cite{https://pubmed.ncbi.nlm.nih.gov/31142858/}; the lower end of the range is likely in paired-sample analyses \cite{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6131952/}. We expect to have greater power to detect the difference in buccal swab samples due to the higher compliance rate. All calculations were made in R \cite{https://www.R-project.org/} using the package FDRsampsize \cite{https://CRAN.R-project.org/package=FDRsampsize}. Code related to this protocol is available at https://github.com/spakowiczlab/oromic. 
